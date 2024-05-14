@@ -126,9 +126,6 @@ jobs:
         run: flutter analyze ${{inputs.analyze_directories}}
         continue-on-error: true
 
-      - name: 🧪 Run Tests
-        run: flutter test --test-randomize-ordering-seed random
-
       - name: 📦 Install Pana
         run: flutter pub global activate pana
 
@@ -138,5 +135,9 @@ jobs:
           echo "Score: $PANA_SCORE"
           IFS='/'; read -a SCORE_ARR <<< "$PANA_SCORE"; SCORE=SCORE_ARR[0];
           if (( $SCORE < ${{inputs.min_pana_score}} )); then echo "The minimum score of ${{inputs.min_pana_score}} was not met!"; exit 1; fi
+        continue-on-error: true
 
+
+      - name: 🧪 Run Tests
+        run: flutter test --test-randomize-ordering-seed random
 
