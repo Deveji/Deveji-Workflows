@@ -1,0 +1,35 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Flutter Build AppBundle
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./lans_app
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'        
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter --version
+      - run: echo $PWD
+      - run: echo "${{secrets.DEV_ENV }}" > .env
+      - run: flutter pub get
+      - run: dart run build_runner build -d
+      # - run: flutter test
+      - run: flutter build appbundle ./lib/main_production.dart --flavor production
