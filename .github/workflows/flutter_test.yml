@@ -129,10 +129,14 @@ jobs:
       - name: 🧪 Run Tests
         run: flutter test --test-randomize-ordering-seed random
 
-      - name: 📊 Check Pana Score
-        uses: Deveji/Deveji-Workflows/.github/workflows/pana.yml@main
-        with:
-          min_score: ${{inputs.min_pana_score}}
-          runs_on: ${{inputs.runs_on}}
-          working_directory: ${{inputs.working_directory}}
+      - name: 📦 Install Pana
+        run: flutter pub global activate pana
+
+      - name: 📊 Verify Pana Score
+        run: |
+          PANA=$(pana . --no-warning); PANA_SCORE=$(echo $PANA | sed -n "s/.*Points: \([0-9]*\)\/\([0-9]*\)./\1\/\2/p")
+          echo "Score: $PANA_SCORE"
+          IFS='/'; read -a SCORE_ARR <<< "$PANA_SCORE"; SCORE=SCORE_ARR[0];
+          if (( $SCORE < ${{inputs.min_pana_score}} )); then echo "The minimum score of ${{inputs.min_pana_score}} was not met!"; exit 1; fi
+
 
