@@ -30,7 +30,7 @@ on:
       format_line_length:
         required: false
         type: string
-        default: "100"
+        default: "80"
       min_coverage:
         required: false
         type: number
