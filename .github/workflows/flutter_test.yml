@@ -62,6 +62,8 @@ on:
     secrets:
       ssh_key:
         required: false
+      dot_env:
+        required: false
 
 jobs:
   test:
@@ -98,7 +100,7 @@ jobs:
           ssh-private-key: ${{secrets.ssh_key}}
 
       - name: 📝 Add .env file
-        run: echo "${{secrets.DEV_ENV }}" > .env
+        run: echo "${{secrets.dot_env }}" > .env
 
       # - name: 🤖 Setup Git Config
       #   run: |
@@ -107,7 +109,6 @@ jobs:
 
       - name: 📦 Install Dependencies
         run: |
-          flutter config --no-cli-animations
           flutter pub get
           dart run build_runner build -d
 
