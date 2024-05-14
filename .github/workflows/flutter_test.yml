@@ -64,7 +64,7 @@ on:
         required: false
 
 jobs:
-  build:
+  test:
     defaults:
       run:
         working-directory: ${{inputs.working_directory}}
@@ -100,6 +100,11 @@ jobs:
       - name: 📝 Add .env file
         run: echo "${{secrets.DEV_ENV }}" > .env
 
+        # setup git config as bot deveji
+      - name: 🤖 Setup Git Config
+        run: |
+          git config --global user.email "github-bot@deveji.com"
+          git config --global user.name "Deveji Bot"
 
       - name: 📦 Install Dependencies
         run: |
