@@ -39,7 +39,8 @@ on:
         required: false
 
 jobs:
-  deveji-flutter-build:
+  build:
+    name: Deveji Flutter Build
     defaults:
       run:
         working-directory: ${{inputs.working_directory}}
@@ -126,8 +127,8 @@ jobs:
 
 
   deploy:
-    name: Deploy Android Build
-    needs: deveji-flutter-build
+    name: Deveji Flutter Deploy
+    needs: build
     runs-on: ${{inputs.runs_on}}
     steps:
     - uses: actions/checkout@v4
@@ -135,7 +136,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: appbundle
-    - name: Release Build to internal track
+    - name: 📲 Release Build to internal track
       uses: r0adkll/upload-google-play@v1
       env:
         PACKAGE_NAME: ${{inputs.package_name}}
@@ -144,6 +145,6 @@ jobs:
       with:
         serviceAccountJsonPlainText: ${{ secrets.playstore_account_key }}
         packageName: ${{inputs.package_name}}
-        releaseFiles: app-release.aab
+        releaseFiles: app-production-release.aab
         track: alpha
         status: completed
