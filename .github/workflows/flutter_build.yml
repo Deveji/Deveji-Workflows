@@ -1,20 +1,8 @@
-name: Flutter Test
+name: Flutter Build AppBundle
 
 on:
   workflow_call:
     inputs:
-      analyze_directories:
-        required: false
-        type: string
-        default: "lib test"
-      concurrency:
-        required: false
-        type: number
-        default: 4
-      coverage_excludes:
-        required: false
-        type: string
-        default: ""
       flutter_channel:
         required: false
         type: string
@@ -23,18 +11,6 @@ on:
         required: false
         type: string
         default: ""
-      format_directories:
-        required: false
-        type: string
-        default: "lib test"
-      format_line_length:
-        required: false
-        type: string
-        default: "80"
-      min_pana_score:
-        required: false
-        type: number
-        default: 80
       runs_on:
         required: false
         type: string
@@ -43,26 +19,18 @@ on:
         required: false
         type: string
         default: ""
-      test_optimization:
-        required: false
-        type: boolean
-        default: true
-      test_recursion:
-        required: false
-        type: boolean
-        default: false
       working_directory:
         required: false
         type: string
         default: "."
-      package_get_excludes:
-        required: false
-        type: string
-        default: "!*"
     secrets:
       ssh_key:
         required: false
       dot_env:
+        required: false
+      keystore_base64:
+        required: false
+      key_properties:
         required: false
 
 jobs:
@@ -105,6 +73,18 @@ jobs:
       - name: 📝 Add .env file
         run: echo "${{ secrets.dot_env }}" > .env
 
+      - name: 🔐 Add Android keystore
+        id: android_keystore
+        uses: timheuer/base64-to-file@v1
+        with:
+          fileDir: ${{inputs.working_directory}}
+          fileName: upload-keystore.jks
+          encodedString: ${{ secrets.keystore_base64 }}
+
+      - name: 🔐 Add Android keystore properties
+        run: |
+          echo "${{ secrets.key_properties }}" > android/key.properties
+
       # - name: 🤖 Setup Git Config
       #   run: |
       #     git config --global user.email "github-bot@deveji.com"
@@ -120,14 +100,11 @@ jobs:
         if: "${{inputs.setup != ''}}"
         run: ${{inputs.setup}}
 
-      - name: ✨ Check Formatting
-        run: dart format --line-length ${{inputs.format_line_length}} --set-exit-if-changed ${{inputs.format_directories}}
-        continue-on-error: true
+      - name: 📦 Build AppBundle
+        run: flutter build appbundle ./lib/main_production.dart --flavor production
 
-      - name: 🕵️ Analyze
-        run: flutter analyze ${{inputs.analyze_directories}}
-        continue-on-error: true
-
-      - name: 🧪 Run Tests
-        run: flutter test --test-randomize-ordering-seed random
-
+      - name: 📦 Upload AppBundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: appbundle
+          path: build/app/outputs/bundle/productionRelease/app-production-release.aab
