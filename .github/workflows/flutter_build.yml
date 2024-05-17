@@ -23,6 +23,9 @@ on:
         required: false
         type: string
         default: "."
+      package_name:
+        required: false
+        type: string
     secrets:
       ssh_key:
         required: false
@@ -32,9 +35,11 @@ on:
         required: false
       key_properties:
         required: false
+      playstore_account_key:
+        required: false
 
 jobs:
-  deveji-flutter-test:
+  deveji-flutter-build:
     defaults:
       run:
         working-directory: ${{inputs.working_directory}}
@@ -113,7 +118,32 @@ jobs:
         run: flutter build appbundle ./lib/main_production.dart --flavor production
 
       - name: 📦 Upload AppBundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: appbundle
-          path: build/app/outputs/bundle/productionRelease/app-production-release.aab
+          overwrite: true
+          path: "${{inputs.working_directory}}/build/app/outputs/bundle/productionRelease/app-production-release.aab"
+
+
+  deploy:
+    name: Deploy Android Build
+    needs: deveji-flutter-build
+    runs-on: ${{inputs.runs_on}}
+    steps:
+    - uses: actions/checkout@v4
+    - name: 📦 Get Android Build from artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: appbundle
+    - name: Release Build to internal track
+      uses: r0adkll/upload-google-play@v1
+      env:
+        PACKAGE_NAME: ${{inputs.package_name}}
+        PLAYSTORE_ACCOUNT_JSON: ${{secrets.playstore_account_key}}
+      if: env.PACKAGE_NAME != null && env.PLAYSTORE_ACCOUNT_JSON != null
+      with:
+        serviceAccountJsonPlainText: ${{ secrets.playstore_account_key }}
+        packageName: ${{inputs.package_name}}
+        releaseFiles: app-release.aab
+        track: alpha
+        status: completed
