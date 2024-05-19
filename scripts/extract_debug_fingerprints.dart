@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'add_fingerprint_to_firebase.dart';
+
 Future<void> main() async {
   // Define the path to the default debug keystore
   final homeDir =
@@ -47,6 +49,11 @@ Future<void> main() async {
   if (sha1Match != null) {
     final sha1Fingerprint = sha1Match.group(1);
     print('SHA-1 Fingerprint: $sha1Fingerprint');
+    await addFingerprintToFirebase(
+      sha1Fingerprint!,
+      '1:326759199717:android:f8157e4760d60adc2bb50c',
+      'lans-04-2024',
+    );
   } else {
     print('SHA-1 Fingerprint not found.');
   }
@@ -54,6 +61,11 @@ Future<void> main() async {
   if (sha256Match != null) {
     final sha256Fingerprint = sha256Match.group(1);
     print('SHA-256 Fingerprint: $sha256Fingerprint');
+    await addFingerprintToFirebase(
+      sha256Fingerprint!,
+      '1:326759199717:android:f8157e4760d60adc2bb50c',
+      'lans-04-2024',
+    );
   } else {
     print('SHA-256 Fingerprint not found.');
   }
