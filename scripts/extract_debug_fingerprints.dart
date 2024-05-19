@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:convert';
 
 Future<void> main() async {
   // Define the path to the default debug keystore
