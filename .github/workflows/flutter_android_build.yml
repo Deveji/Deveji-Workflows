@@ -35,6 +35,7 @@ on:
         
 jobs:
   bump-version:
+    name: Deveji - Bump Version
     uses: Deveji/Deveji-Workflows/.github/workflows/flutter_bump_build.yml@main
     with:
       working_directory: ${{inputs.working_directory}}
