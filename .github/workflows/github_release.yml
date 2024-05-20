@@ -37,7 +37,6 @@ jobs:
     steps:
       - name: 📚 Git Checkout
         uses: actions/checkout@v4.1.6
-
               
       - name: 🏷️ Flutter Auto Tag
         id: tag_version
@@ -47,11 +46,6 @@ jobs:
           tag_prefix: "v"
           tag_message: "${{ inputs.description }}"
           package_root: "${{ inputs.working_directory }}"
-
-      - name: Build
-        run: echo ${{ github.sha }} > Release.txt
-      - name: Test
-        run: cat Release.txt
 
       - name: 🗂️ Create Build Output Directory
         run: mkdir -p outputs
@@ -72,6 +66,14 @@ jobs:
           name: ${{inputs.android_artifact_name}}
           path: outputs
 
+
+      - name: 📦 Get All Builds from artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v4.1.7
+        with:
+          merge-multiple: true
+          path: outputs   
+
       - name: Release
         uses: softprops/action-gh-release@v2.0.5
         with:
@@ -79,7 +81,6 @@ jobs:
           token: ${{ secrets.gh_token }}
           body: ${{ inputs.description }}
           files: |
-            Release.txt
             ./outputs/*
 
           
