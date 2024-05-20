@@ -15,14 +15,14 @@ on:
         required: false
         type: string
         default: "ubuntu-latest"
-      setup:
-        required: false
-        type: string
-        default: ""
       working_directory:
         required: false
         type: string
         default: "."
+      flavor:
+        required: false
+        type: string
+        default: "development"
     secrets:
       dot_env:
         required: false
@@ -49,7 +49,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'    
+          cache: 'gradle'
 
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2.16.0
@@ -89,16 +89,12 @@ jobs:
           dart run build_runner build -d
           flutter pub get
 
-      - name: ⚙️ Run Setup
-        if: "${{inputs.setup != ''}}"
-        run: ${{inputs.setup}}
-
       - name: 📦 Build AppBundle
-        run: flutter build appbundle ./lib/main_production.dart --flavor production
+        run: "flutter build appbundle ./lib/main_${{ inputs.flavor }}.dart --flavor ${{ inputs.flavor }} --release"
 
       - name: 📦 Upload AppBundle
         uses: actions/upload-artifact@v4.3.3
         with:
           name: appbundle
           overwrite: true
-          path: "${{inputs.working_directory}}/build/app/outputs/bundle/productionRelease/app-production-release.aab"
+          path: "${{inputs.working_directory}}/build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab"
