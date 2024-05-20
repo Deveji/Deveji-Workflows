@@ -23,58 +23,41 @@ on:
         required: false
         type: string
         default: "."
-      package_name:
-        required: false
-        type: string
     secrets:
-      ssh_key:
-        required: false
       dot_env:
         required: false
       keystore_base64:
         required: false
       key_properties:
         required: false
-      playstore_account_key:
-        required: false
-
+        
 jobs:
   build:
-    name: Deveji Flutter Build
+    name: Deveji - Flutter Android Build
     defaults:
       run:
         working-directory: ${{inputs.working_directory}}
 
     runs-on: ${{inputs.runs_on}}
 
-    # continue-on-error: true
-
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.6
 
       - name: 🚀 Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v4.2.1
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'gradle'    
 
       - name: 🐦 Setup Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@v2.16.0
         with:
           flutter-version: ${{inputs.flutter_version}}
           channel: ${{inputs.flutter_channel}}
           cache: true
           cache-key: flutter-:os:-:channel:-:version:-:arch:-:hash:-${{ hashFiles('**/pubspec.lock') }}
-
-      - name: 🤫 Set SSH Key
-        env:
-          ssh_key: ${{secrets.ssh_key}}
-        if: env.ssh_key != null
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{secrets.ssh_key}}
 
       - name: 📝 Add .env file
         env:
@@ -87,7 +70,7 @@ jobs:
           ANDROID_KEYSTORE: ${{ secrets.keystore_base64 }}
         if: env.ANDROID_KEYSTORE != null
         id: android_keystore
-        uses: timheuer/base64-to-file@v1
+        uses: timheuer/base64-to-file@v1.2.4
         with:
           fileDir: ${{inputs.working_directory}}
           fileName: upload-keystore.jks
@@ -99,11 +82,6 @@ jobs:
         if: env.ANDROID_KEYSTORE_PROPERTIES != null
         run: |
           echo "${{ secrets.key_properties }}" > android/key.properties
-
-      # - name: 🤖 Setup Git Config
-      #   run: |
-      #     git config --global user.email "github-bot@deveji.com"
-      #     git config --global user.name "Deveji Bot"
 
       - name: 📦 Install Dependencies
         run: |
@@ -119,32 +97,8 @@ jobs:
         run: flutter build appbundle ./lib/main_production.dart --flavor production
 
       - name: 📦 Upload AppBundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: appbundle
           overwrite: true
           path: "${{inputs.working_directory}}/build/app/outputs/bundle/productionRelease/app-production-release.aab"
-
-
-  deploy:
-    name: Deveji Flutter Deploy
-    needs: build
-    runs-on: ${{inputs.runs_on}}
-    steps:
-    - uses: actions/checkout@v4
-    - name: 📦 Get Android Build from artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: appbundle
-    - name: 📲 Release Build to internal track
-      uses: r0adkll/upload-google-play@v1
-      env:
-        PACKAGE_NAME: ${{inputs.package_name}}
-        PLAYSTORE_ACCOUNT_JSON: ${{secrets.playstore_account_key}}
-      if: env.PACKAGE_NAME != null && env.PLAYSTORE_ACCOUNT_JSON != null
-      with:
-        serviceAccountJsonPlainText: ${{ secrets.playstore_account_key }}
-        packageName: ${{inputs.package_name}}
-        releaseFiles: app-production-release.aab
-        track: alpha
-        status: completed
