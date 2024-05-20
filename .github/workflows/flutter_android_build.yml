@@ -30,6 +30,8 @@ on:
         required: false
       key_properties:
         required: false
+      github_token:
+        required: true
         
 jobs:
   build:
@@ -86,11 +88,18 @@ jobs:
       - name: 📦 Install Dependencies
         run: |
           flutter clean
-          dart run build_runner build -d
+          dart pub global activate build_runner
+          dart run build_runner build -d --define="build_number=${{ github.run_number }}"
           flutter pub get
 
+      - name: 🔢 Increment Build Version
+        uses: onyxmueller/build-tag-number@v1.0.3
+        id: buildnumber
+        with:
+          token: ${{secrets.github_token}}  
+
       - name: 📦 Build AppBundle
-        run: "flutter build appbundle ./lib/main_${{ inputs.flavor }}.dart --flavor ${{ inputs.flavor }} --release"
+        run: "flutter build appbundle ./lib/main_${{ inputs.flavor }}.dart --flavor ${{ inputs.flavor }} --release --build-number ${{ steps.buildnumber.outputs.build_number }}"
 
       - name: 📦 Upload AppBundle
         uses: actions/upload-artifact@v4.3.3
