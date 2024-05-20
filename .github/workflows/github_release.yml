@@ -44,6 +44,8 @@ jobs:
         uses: jacopocarlini/action-autotag@3.0.0
         with:
           GITHUB_TOKEN: "${{ secrets.gh_token }}"
+          tag_prefix: "v"
+          tag_message: "${{ inputs.description }}"
           package_root: "${{ inputs.working_directory }}"
 
       - name: Build
@@ -73,6 +75,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2.0.5
         with:
+          token: ${{ secrets.gh_token }}
           body: ${{ inputs.description }}
           files: |
             Release.txt
