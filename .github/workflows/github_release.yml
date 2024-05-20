@@ -75,6 +75,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2.0.5
         with:
+          tag_name: ${{ steps.tag_version.outputs.tagname }}
           token: ${{ secrets.gh_token }}
           body: ${{ inputs.description }}
           files: |
