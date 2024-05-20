@@ -13,14 +13,6 @@ on:
         required: false
         default: 'This is the release notes for latest version. You can add more details here.'
         type: string
-      android_artifact_name:
-        required: false
-        type: string
-        default: "appbundle"
-      ios_artifact_name:
-        required: false
-        type: string
-        default: "ipa"
       working_directory:
         required: false
         type: string
@@ -56,14 +48,14 @@ jobs:
       - name: 🗂️ Create Build Output Directory
         run: mkdir -p ./outputs
 
-      - name: 📦 Get All Builds from cache
+      - name: 📦 Get All Builds From Cache
         continue-on-error: true
         uses: actions/cache/restore@v4.0.2
         with:
           path: ./outputs/**
           key: outputs
 
-      - name: Release
+      - name: ✨ Create New Release
         uses: softprops/action-gh-release@v2.0.5
         with:
           tag_name: ${{ steps.tag_version.outputs.tagname }}
@@ -71,6 +63,12 @@ jobs:
           body: ${{ inputs.description }}
           files: |
             ./outputs/**
+
+      - name: 🗑️ Clear Caches
+        continue-on-error: true
+        uses: prantlf/delete-cache-action@v3.0.0
+        with:
+          key: outputs
 
           
 
