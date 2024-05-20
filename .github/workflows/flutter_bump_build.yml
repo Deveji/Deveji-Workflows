@@ -13,11 +13,11 @@ on:
 
 
 jobs:
-  bump_build_version:
+  deveji-bump-build-version:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout repository
+      - name: 📚 Git Checkout
         uses: actions/checkout@v4.1.6
 
       - name: 🔢 Increment Build Version

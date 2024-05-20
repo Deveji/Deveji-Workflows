@@ -74,4 +74,8 @@ jobs:
 
       - name: 🧪 Run Tests
         run: flutter test --test-randomize-ordering-seed random
+      
+      - name: 🚀 Results
+        run: |
+          echo "### 🎉 All tests passed! :rocket:" >> $GITHUB_STEP_SUMMARY
 

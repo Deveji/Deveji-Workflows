@@ -1,0 +1,83 @@
+name: Create GitHub Release
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+on:
+  workflow_call:
+    inputs:
+      description:
+        description: 'Release description'
+        required: false
+        default: 'This is the release notes for latest version. You can add more details here.'
+        type: string
+      android_artifact_name:
+        required: false
+        type: string
+        default: "appbundle"
+      ios_artifact_name:
+        required: false
+        type: string
+        default: "ipa"
+      working_directory:
+        required: false
+        type: string
+        default: "."
+    secrets:
+      gh_token:
+        required: true
+
+
+jobs:
+  release:
+    name: Deveji - Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4.1.6
+
+              
+      - name: 🏷️ Flutter Auto Tag
+        id: tag_version
+        uses: jacopocarlini/action-autotag@3.0.0
+        with:
+          GITHUB_TOKEN: "${{ secrets.gh_token }}"
+          package_root: "${{ inputs.working_directory }}"
+
+      - name: Build
+        run: echo ${{ github.sha }} > Release.txt
+      - name: Test
+        run: cat Release.txt
+
+      - name: 🗂️ Create Build Output Directory
+        run: mkdir -p outputs
+
+      - name: 📦 Get iOS Build from artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v4.1.7
+        with:
+          name: ${{inputs.ios_artifact_name}}
+          path: outputs
+
+
+      - name: 📦 Get Android Build from artifacts
+        id: android_build
+        continue-on-error: true
+        uses: actions/download-artifact@v4.1.7
+        with:
+          name: ${{inputs.android_artifact_name}}
+          path: outputs
+
+      - name: Release
+        uses: softprops/action-gh-release@v2.0.5
+        with:
+          files: |
+            Release.txt
+            ./outputs/*
+
+          
+
+
+            
