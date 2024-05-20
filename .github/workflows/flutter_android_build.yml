@@ -35,17 +35,11 @@ on:
         
 jobs:
   bump-version:
-    runs-on: ${{inputs.runs_on}}
-    defaults:
-      run:
-        working-directory: ${{inputs.working_directory}}
-    steps:
-    - name: 🔢 Increment Build Version
-      uses: Deveji/Deveji-Workflows/.github/workflows/flutter_bump_build.yml@main
-      with:
-        working_directory: ${{inputs.working_directory}}
-      secrets:
-        gh_token: ${{ secrets.gh_token }}
+    uses: Deveji/Deveji-Workflows/.github/workflows/flutter_bump_build.yml@main
+    with:
+      working_directory: ${{inputs.working_directory}}
+    secrets:
+      gh_token: ${{ secrets.gh_token }}
 
 
   build:
