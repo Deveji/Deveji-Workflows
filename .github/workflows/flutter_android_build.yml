@@ -47,9 +47,6 @@ jobs:
   build:
     name: Deveji - Flutter Android Build
     needs: bump-version
-    defaults:
-      run:
-        working-directory: ${{inputs.working_directory}}
 
     runs-on: ${{inputs.runs_on}}
 
@@ -73,6 +70,7 @@ jobs:
           cache-key: flutter-:os:-:channel:-:version:-:arch:-:hash:-${{ hashFiles('**/pubspec.lock') }}
 
       - name: 📝 Add .env file
+        working-directory: ${{inputs.working_directory}}
         env:
           DOT_ENV: ${{ secrets.dot_env }}
         if: env.DOT_ENV != null
@@ -90,6 +88,7 @@ jobs:
           encodedString: ${{ secrets.keystore_base64 }}
 
       - name: 🔐 Add Android keystore properties
+        working-directory: ${{inputs.working_directory}}
         env:
           ANDROID_KEYSTORE_PROPERTIES: ${{ secrets.key_properties }}
         if: env.ANDROID_KEYSTORE_PROPERTIES != null
@@ -97,6 +96,7 @@ jobs:
           echo "${{ secrets.key_properties }}" > android/key.properties
 
       - name: 📦 Install Dependencies
+        working-directory: ${{inputs.working_directory}}
         run: |
           flutter clean
           dart pub global activate build_runner
@@ -104,6 +104,7 @@ jobs:
           flutter pub get
 
       - name: 🏗️ Build AppBundle
+        working-directory: ${{inputs.working_directory}}
         run: "flutter build appbundle ./lib/main_${{ inputs.flavor }}.dart --flavor ${{ inputs.flavor }} --release"
 
       - name: ☁️ Upload AppBundle
@@ -114,13 +115,12 @@ jobs:
           path: "${{inputs.working_directory}}/build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab"
 
       - name: Copy AppBundle to outputs
-        working-directory: ${{inputs.working_directory}}
         run: |
           mkdir -p ./outputs
-          cp "./build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab" ./outputs/
+          cp "${{inputs.working_directory}}/build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab" ./outputs/
 
       - name: 📦 Cache AppBundle
         uses: actions/cache/save@v4.0.2
         with:
           key: outputs
-          path: "outputs/**"
+          path: "./outputs/**"
