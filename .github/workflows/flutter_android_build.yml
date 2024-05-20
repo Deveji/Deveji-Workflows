@@ -111,3 +111,9 @@ jobs:
           name: appbundle
           overwrite: true
           path: "${{inputs.working_directory}}/build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab"
+
+      - name: 📦 Cache AppBundle
+        uses: actions/cache/save@v4.0.2
+        with:
+          key: appbundle
+          path: "${{inputs.working_directory}}/build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab"
