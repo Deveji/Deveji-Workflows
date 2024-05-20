@@ -34,8 +34,23 @@ on:
         required: true
         
 jobs:
+  bump-version:
+    runs-on: ${{inputs.runs_on}}
+    defaults:
+      run:
+        working-directory: ${{inputs.working_directory}}
+    steps:
+    - name: 🔢 Increment Build Version
+      uses: Deveji/Deveji-Workflows/.github/workflows/flutter_bump_build.yml@main
+      with:
+        working_directory: ${{inputs.working_directory}}
+      secrets:
+        gh_token: ${{ secrets.gh_token }}
+
+
   build:
     name: Deveji - Flutter Android Build
+    needs: bump-version
     defaults:
       run:
         working-directory: ${{inputs.working_directory}}
@@ -92,14 +107,8 @@ jobs:
           dart run build_runner build -d
           flutter pub get
 
-      - name: 🔢 Increment Build Version
-        uses: onyxmueller/build-tag-number@v1.0.3
-        id: buildnumber
-        with:
-          token: ${{secrets.gh_token}}  
-
       - name: 📦 Build AppBundle
-        run: "flutter build appbundle ./lib/main_${{ inputs.flavor }}.dart --flavor ${{ inputs.flavor }} --release --build-number ${{ steps.buildnumber.outputs.build_number }}"
+        run: "flutter build appbundle ./lib/main_${{ inputs.flavor }}.dart --flavor ${{ inputs.flavor }} --release"
 
       - name: 📦 Upload AppBundle
         uses: actions/upload-artifact@v4.3.3
