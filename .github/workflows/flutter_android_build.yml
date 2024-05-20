@@ -89,7 +89,7 @@ jobs:
         run: |
           flutter clean
           dart pub global activate build_runner
-          dart run build_runner build -d --define="build_number=${{ github.run_number }}"
+          dart run build_runner build -d
           flutter pub get
 
       - name: 🔢 Increment Build Version
