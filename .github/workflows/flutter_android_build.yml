@@ -30,7 +30,7 @@ on:
         required: false
       key_properties:
         required: false
-      github_token:
+      gh_token:
         required: true
         
 jobs:
@@ -96,7 +96,7 @@ jobs:
         uses: onyxmueller/build-tag-number@v1.0.3
         id: buildnumber
         with:
-          token: ${{secrets.github_token}}  
+          token: ${{secrets.gh_token}}  
 
       - name: 📦 Build AppBundle
         run: "flutter build appbundle ./lib/main_${{ inputs.flavor }}.dart --flavor ${{ inputs.flavor }} --release --build-number ${{ steps.buildnumber.outputs.build_number }}"
