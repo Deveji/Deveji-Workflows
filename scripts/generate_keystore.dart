@@ -2,13 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'get_keystore_hash.dart';
+
 void main() async {
   // Set the necessary fields
-  final organizationalUnit = 'Your Organizational Unit';
-  final organization = 'Your Organization';
-  final locality = 'Your Locality';
-  final stateProvince = 'Your State/Province';
-  final countryCode = 'Your Country Code';
+  final organizationalUnit = 'Deveji';
+  final organization = 'Deveji';
+  final locality = 'Warsaw';
+  final stateProvince = 'Masovian';
+  final countryCode = 'PL';
   final keystorePath = './upload-keystore.jks';
   final keyAlias = 'upload';
   final keySize = '2048';
@@ -36,8 +38,10 @@ void main() async {
   );
 
   // Check SHA1 and SHA256 for the generated key
-  final sha1 = await getKeystoreSHA1(keystorePath, keyAlias, password);
-  final sha256 = await getKeystoreSHA256(keystorePath, keyAlias, password);
+  final sha1 =
+      await getKeystoreSHA(keystorePath, keyAlias, password, SHAType.SHA1);
+  final sha256 =
+      await getKeystoreSHA(keystorePath, keyAlias, password, SHAType.SHA256);
 
   print('Keystore generated successfully!');
   print('Keystore path: $keystorePath');
@@ -103,64 +107,4 @@ Future<void> generateKeystore(
   if (result.exitCode != 0) {
     throw Exception('Failed to generate keystore: ${result.stderr}');
   }
-}
-
-Future<String> getKeystoreSHA1(
-  String keystorePath,
-  String keyAlias,
-  String password,
-) async {
-  final result = await Process.run('keytool', [
-    '-list',
-    '-v',
-    '-keystore',
-    keystorePath,
-    '-alias',
-    keyAlias,
-    '-storepass',
-    password,
-  ]);
-
-  if (result.exitCode != 0) {
-    throw Exception('Failed to get keystore SHA1: ${result.stderr}');
-  }
-
-  final output = result.stdout as String;
-  final sha1Regex = RegExp(r'SHA1: ([A-F0-9:]+)');
-  final match = sha1Regex.firstMatch(output);
-  if (match == null) {
-    throw Exception('Failed to parse keystore SHA1');
-  }
-
-  return match.group(1)!;
-}
-
-Future<String> getKeystoreSHA256(
-  String keystorePath,
-  String keyAlias,
-  String password,
-) async {
-  final result = await Process.run('keytool', [
-    '-list',
-    '-v',
-    '-keystore',
-    keystorePath,
-    '-alias',
-    keyAlias,
-    '-storepass',
-    password,
-  ]);
-
-  if (result.exitCode != 0) {
-    throw Exception('Failed to get keystore SHA256: ${result.stderr}');
-  }
-
-  final output = result.stdout as String;
-  final sha256Regex = RegExp(r'SHA256: ([A-F0-9:]+)');
-  final match = sha256Regex.firstMatch(output);
-  if (match == null) {
-    throw Exception('Failed to parse keystore SHA256');
-  }
-
-  return match.group(1)!;
 }

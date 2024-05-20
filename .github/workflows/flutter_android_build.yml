@@ -114,9 +114,10 @@ jobs:
           path: "${{inputs.working_directory}}/build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab"
 
       - name: Copy AppBundle to outputs
+        working-directory: ${{inputs.working_directory}}
         run: |
-          mkdir -p outputs
-          cp "${{inputs.working_directory}}/build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab" outputs/
+          mkdir -p ./outputs
+          cp "./build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab" ./outputs/
 
       - name: 📦 Cache AppBundle
         uses: actions/cache/save@v4.0.2
