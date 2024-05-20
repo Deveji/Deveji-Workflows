@@ -25,6 +25,10 @@ on:
         required: false
         type: string
         default: "."
+      git_ref:
+        required: false
+        type: string
+        default: "main"
     secrets:
       gh_token:
         required: true
@@ -37,6 +41,8 @@ jobs:
     steps:
       - name: 📚 Git Checkout
         uses: actions/checkout@v4.1.6
+        with:
+          ref: ${{inputs.git_ref}}
               
       - name: 🏷️ Flutter Auto Tag
         id: tag_version
@@ -48,13 +54,13 @@ jobs:
           package_root: "${{ inputs.working_directory }}"
 
       - name: 🗂️ Create Build Output Directory
-        run: mkdir -p outputs
+        run: mkdir -p ./outputs
 
       - name: 📦 Get All Builds from cache
         continue-on-error: true
         uses: actions/cache/restore@v4.0.2
         with:
-          path: outputs/**
+          path: ./outputs/**
           key: outputs
 
       - name: Release
