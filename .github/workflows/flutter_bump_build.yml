@@ -7,6 +7,10 @@ on:
         required: false
         type: string
         default: "."
+      git_ref:
+        required: false
+        type: string
+        default: "main"
     secrets:
       gh_token:
         required: true
@@ -19,6 +23,8 @@ jobs:
     steps:
       - name: 📚 Git Checkout
         uses: actions/checkout@v4.1.6
+        with:
+          ref: ${{inputs.git_ref}}
 
       - name: 🔢 Increment Build Version
         working-directory: ${{inputs.working_directory}}
@@ -32,5 +38,5 @@ jobs:
         uses: ad-m/github-push-action@v0.8.0
         with:
           github_token: ${{ secrets.gh_token }}
-          branch: ${{ github.ref }}
+          branch: ${{inputs.git_ref}}
   

@@ -39,6 +39,7 @@ jobs:
     uses: Deveji/Deveji-Workflows/.github/workflows/flutter_bump_build.yml@main
     with:
       working_directory: ${{inputs.working_directory}}
+      git_ref: ${{ github.ref }}
     secrets:
       gh_token: ${{ secrets.gh_token }}
 
