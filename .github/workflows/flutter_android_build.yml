@@ -102,18 +102,23 @@ jobs:
           dart run build_runner build -d
           flutter pub get
 
-      - name: 📦 Build AppBundle
+      - name: 🏗️ Build AppBundle
         run: "flutter build appbundle ./lib/main_${{ inputs.flavor }}.dart --flavor ${{ inputs.flavor }} --release"
 
-      - name: 📦 Upload AppBundle
+      - name: ☁️ Upload AppBundle
         uses: actions/upload-artifact@v4.3.3
         with:
           name: appbundle
           overwrite: true
           path: "${{inputs.working_directory}}/build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab"
 
+      - name: Copy AppBundle to outputs
+        run: |
+          mkdir -p outputs
+          cp "${{inputs.working_directory}}/build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab" outputs/
+
       - name: 📦 Cache AppBundle
         uses: actions/cache/save@v4.0.2
         with:
-          key: appbundle
-          path: "${{inputs.working_directory}}/build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab"
+          key: outputs
+          path: "outputs/**"

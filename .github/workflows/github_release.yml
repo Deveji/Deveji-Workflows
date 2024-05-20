@@ -50,30 +50,12 @@ jobs:
       - name: 🗂️ Create Build Output Directory
         run: mkdir -p outputs
 
-      - name: 📦 Get iOS Build from artifacts
+      - name: 📦 Get All Builds from cache
         continue-on-error: true
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/cache/restore@v4.0.2
         with:
-          name: ${{inputs.ios_artifact_name}}
-          path: outputs
-
-
-      - name: 📦 Get Android Build from artifacts
-        id: android_build
-        continue-on-error: true
-        uses: actions/download-artifact@v4.1.7
-        with:
-          name: ${{inputs.android_artifact_name}}
-          path: outputs
-
-
-      - name: 📦 Get All Builds from artifacts
-        continue-on-error: true
-        uses: actions/download-artifact@v4.1.7
-        with:
-          repository: ${{ github.repository }}
-          merge-multiple: true
-          path: outputs
+          path: outputs/**
+          key: outputs
 
       - name: Release
         uses: softprops/action-gh-release@v2.0.5
@@ -82,7 +64,7 @@ jobs:
           token: ${{ secrets.gh_token }}
           body: ${{ inputs.description }}
           files: |
-            ./outputs/*
+            ./outputs/**
 
           
 
