@@ -23,6 +23,10 @@ on:
         required: false
         type: string
         default: "development"
+      git_ref:
+        required: false
+        type: string
+        default: "main"
     secrets:
       dot_env:
         required: false
@@ -53,6 +57,8 @@ jobs:
     steps:
       - name: 📚 Git Checkout
         uses: actions/checkout@v4.1.6
+        with:
+          ref: ${{inputs.git_ref}}
 
       - name: 🚀 Setup Java
         uses: actions/setup-java@v4.2.1
@@ -87,7 +93,7 @@ jobs:
           fileName: upload-keystore.jks
           encodedString: ${{ secrets.keystore_base64 }}
 
-      - name: 🔐 Add Android keystore properties
+      - name: ⚙️ Add Android keystore properties
         working-directory: ${{inputs.working_directory}}
         env:
           ANDROID_KEYSTORE_PROPERTIES: ${{ secrets.key_properties }}
@@ -114,10 +120,18 @@ jobs:
           overwrite: true
           path: "${{inputs.working_directory}}/build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab"
 
-      - name: Copy AppBundle to outputs
+      - name: ✚ Copy AppBundle to outputs
         run: |
           mkdir -p ./outputs
           cp "${{inputs.working_directory}}/build/app/outputs/bundle/${{ inputs.flavor }}Release/app-${{ inputs.flavor }}-release.aab" ./outputs/
+
+      - name: 🗑️ Delete Previous Cache
+        continue-on-error: true
+        run: |
+          gh extension install actions/gh-actions-cache
+          gh actions-cache delete outputs --confirm
+        env:
+          GH_TOKEN: ${{ secrets.gh_token }}
 
       - name: 📦 Cache AppBundle
         uses: actions/cache/save@v4.0.2
