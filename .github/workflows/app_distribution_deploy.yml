@@ -22,18 +22,28 @@ jobs:
     name: Deveji - Firebase App Distribution Deploy
     runs-on: ${{inputs.runs_on}}
     steps:
+
+    - name: 📂 Create directory for build file
+      run: mkdir -p outputs
+
     - name: 📦 Get Build from artifacts
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{inputs.artifact_name}}
+        path: outputs
 
-    - name: Create directory for APK
-      run: mkdir -p outputs
+        # find the build file in the outputs directory and save it to the env variable
+        # use this style:
+        # run: echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
+    - name: 📂 Find build file
+      run: echo "BUILD_FILE=$(find outputs -type f -name '*.aab' -o -name '*.apk')" >> $BUILD_PATH
+
 
     - name: 📲 Upload build to Firebase App Distribution
-      uses: wzieba/Firebase-Distribution-Github-Action@v1
+      uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
       with:
         appId: ${{secrets.firebase_app_id}}
         serviceCredentialsFileContent: ${{ secrets.firebase_account_key }}
-        groups: testers
-        file: outputs/*.*
+        groups: deveji
+        file: outputs/$BUILD_FILE
+        debug: trues

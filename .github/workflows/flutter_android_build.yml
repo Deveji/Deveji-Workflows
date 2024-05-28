@@ -38,19 +38,19 @@ on:
         required: true
         
 jobs:
-  bump-version:
-    name: Deveji - Bump Version
-    uses: Deveji/Deveji-Workflows/.github/workflows/flutter_bump_build.yml@main
-    with:
-      working_directory: ${{inputs.working_directory}}
-      git_ref: ${{ github.ref }}
-    secrets:
-      gh_token: ${{ secrets.gh_token }}
+  # bump-version:
+  #   name: Deveji - Bump Version
+  #   uses: Deveji/Deveji-Workflows/.github/workflows/flutter_bump_build.yml@main
+  #   with:
+  #     working_directory: ${{inputs.working_directory}}
+  #     git_ref: ${{ github.ref }}
+  #   secrets:
+  #     gh_token: ${{ secrets.gh_token }}
 
 
   build:
     name: Deveji - Flutter Android Build
-    needs: bump-version
+    # needs: bump-version
 
     runs-on: ${{inputs.runs_on}}
 
