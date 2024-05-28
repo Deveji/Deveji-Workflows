@@ -36,7 +36,13 @@ jobs:
         # use this style:
         # run: echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
     - name: 📂 Find build file
-      run: file=$(find outputs -type f \( -name "*.apk" -o -name "*.aab" -o -name "*.ipa" \) -print -quit) && export BUILD_PATH=$file
+      run: echo "BUILD_FILE=$(find outputs -type f \( -name "*.apk" -o -name "*.aab" -o -name "*.ipa" \) -print -quit)" >> $GITHUB_ENV
+
+    - name: test 1
+      run: echo $BUILD_FILE
+
+    - name: test 2
+      run: echo ${{ env.BUILD_FILE }}
 
 
     - name: 📲 Upload build to Firebase App Distribution
