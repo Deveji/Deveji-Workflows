@@ -1,0 +1,39 @@
+name: Deveji - Google Play Deploy
+
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        required: false
+        type: string
+        default: "appbundle"
+      runs_on:
+        required: false
+        type: string
+        default: "ubuntu-latest"
+    secrets:
+      firebase_account_key:
+        required: true
+      firebase_app_id:
+        required: true
+
+jobs:
+  deploy:
+    name: Deveji - Google Play Deploy
+    runs-on: ${{inputs.runs_on}}
+    steps:
+    - name: 📦 Get Build from artifacts
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: ${{inputs.artifact_name}}
+
+    - name: Create directory for APK
+      run: mkdir -p outputs
+
+    - name: 📲 Upload build to Firebase App Distribution
+      uses: wzieba/Firebase-Distribution-Github-Action@v1
+      with:
+        appId: ${{secrets.firebase_app_id}}
+        serviceCredentialsFileContent: ${{ secrets.firebase_account_key }}
+        groups: testers
+        file: outputs/*.*
