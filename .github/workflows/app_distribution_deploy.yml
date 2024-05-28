@@ -47,18 +47,11 @@ jobs:
     - name: 📂 Find build file
       run: echo "BUILD_FILE=$(find outputs -type f \( -name "*.apk" -o -name "*.aab" -o -name "*.ipa" \) -print -quit)" >> $GITHUB_ENV
 
-    - name: test 1
-      run: echo $BUILD_FILE
-
-    - name: test 2
-      run: echo ${{ env.BUILD_FILE }}
-
-
     - name: 📲 Upload build to Firebase App Distribution
       uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
       with:
         appId: ${{secrets.firebase_app_id}}
         serviceCredentialsFileContent: ${{ secrets.firebase_account_key }}
         groups: deveji
-        file: outputs/$BUILD_FILE
-        debug: trues
+        file: $BUILD_FILE
+        debug: true
