@@ -11,6 +11,10 @@ on:
         required: false
         type: string
         default: "ubuntu-latest"
+      git_ref:
+        required: false
+        type: string
+        default: "main"
     secrets:
       firebase_account_key:
         required: true
@@ -22,6 +26,11 @@ jobs:
     name: Deveji - Firebase App Distribution Deploy
     runs-on: ${{inputs.runs_on}}
     steps:
+
+    - name: 📚 Git Checkout
+      uses: actions/checkout@v4.1.6
+      with:
+        ref: ${{inputs.git_ref}}
 
     - name: 📂 Create directory for build file
       run: mkdir -p outputs
