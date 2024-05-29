@@ -50,7 +50,7 @@ jobs:
     - name: 📲 Upload build to Firebase App Distribution
       uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
       with:
-        appId: lans-04-2024-dev
+        appId: ${{secrets.firebase_app_id}}
         serviceCredentialsFileContent: ${{ secrets.firebase_account_key }}
         groups: deveji
         file: ${{ env.BUILD_FILE }}
