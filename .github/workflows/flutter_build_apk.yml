@@ -1,0 +1,144 @@
+name: Flutter Build APK
+
+on:
+  workflow_call:
+    inputs:
+      flutter_channel:
+        required: false
+        type: string
+        default: "stable"
+      flutter_version:
+        required: false
+        type: string
+        default: ""
+      runs_on:
+        required: false
+        type: string
+        default: "ubuntu-latest"
+      working_directory:
+        required: false
+        type: string
+        default: "."
+      flavor:
+        required: false
+        type: string
+        default: "development"
+      git_ref:
+        required: false
+        type: string
+        default: "main"
+      build_number:
+        required: false
+        type: string
+        default: "1"
+    secrets:
+      dot_env:
+        required: false
+      keystore_base64:
+        required: false
+      key_properties:
+        required: false
+      gh_token:
+        required: true
+        
+jobs:
+  # bump-version:
+  #   name: Deveji - Bump Version
+  #   uses: Deveji/Deveji-Workflows/.github/workflows/flutter_bump_build.yml@main
+  #   with:
+  #     working_directory: ${{inputs.working_directory}}
+  #     git_ref: ${{ github.ref }}
+  #   secrets:
+  #     gh_token: ${{ secrets.gh_token }}
+
+
+  build:
+    name: Deveji - Flutter Android Build
+    # needs: bump-version
+
+    runs-on: ${{inputs.runs_on}}
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4.1.6
+        with:
+          ref: ${{inputs.git_ref}}
+
+      - name: 🚀 Setup Java
+        uses: actions/setup-java@v4.2.1
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2.16.0
+        with:
+          flutter-version: ${{inputs.flutter_version}}
+          channel: ${{inputs.flutter_channel}}
+          cache: true
+          cache-key: flutter-:os:-:channel:-:version:-:arch:-:hash:-${{ hashFiles('**/pubspec.lock') }}
+
+      - name: 📝 Add .env file
+        working-directory: ${{inputs.working_directory}}
+        env:
+          DOT_ENV: ${{ secrets.dot_env }}
+        if: env.DOT_ENV != null
+        run: echo "${{ secrets.dot_env }}" > .env
+
+      - name: 🔐 Add Android keystore
+        env:
+          ANDROID_KEYSTORE: ${{ secrets.keystore_base64 }}
+        if: env.ANDROID_KEYSTORE != null
+        id: android_keystore
+        uses: timheuer/base64-to-file@v1.2.4
+        with:
+          fileDir: ${{inputs.working_directory}}
+          fileName: upload-keystore.jks
+          encodedString: ${{ secrets.keystore_base64 }}
+
+      - name: ⚙️ Add Android keystore properties
+        working-directory: ${{inputs.working_directory}}
+        env:
+          ANDROID_KEYSTORE_PROPERTIES: ${{ secrets.key_properties }}
+        if: env.ANDROID_KEYSTORE_PROPERTIES != null
+        run: |
+          echo "${{ secrets.key_properties }}" > android/key.properties
+
+      - name: 📦 Install Dependencies
+        working-directory: ${{inputs.working_directory}}
+        run: |
+          flutter clean
+          dart pub global activate build_runner
+          dart run build_runner build -d
+          flutter pub get
+
+      - name: 🏗️ Build APK
+        working-directory: ${{inputs.working_directory}}
+        run: "flutter build apk ./lib/main_${{ inputs.flavor }}.dart --flavor ${{ inputs.flavor }} --release --build-number ${{ inputs.build_number }}"
+
+      - name: ☁️ Upload apk
+        uses: actions/upload-artifact@v4.3.3
+        with:
+          name: apk
+          overwrite: true
+          path: "${{inputs.working_directory}}/build/app/outputs/flutter-apk/app-${{ inputs.flavor }}-release.apk"
+
+      - name: ✚ Copy APK to outputs
+        run: |
+          mkdir -p ./outputs
+          cp "${{inputs.working_directory}}/build/app/outputs/flutter-apk/app-${{ inputs.flavor }}-release.apk" ./outputs/
+
+      - name: 🗑️ Delete Previous Cache
+        continue-on-error: true
+        run: |
+          gh extension install actions/gh-actions-cache
+          gh actions-cache delete outputs --confirm
+        env:
+          GH_TOKEN: ${{ secrets.gh_token }}
+
+      - name: 📦 Cache APK
+        uses: actions/cache/save@v4.0.2
+        with:
+          key: outputs
+          path: "./outputs/**"

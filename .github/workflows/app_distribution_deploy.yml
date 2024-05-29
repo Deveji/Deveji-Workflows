@@ -46,11 +46,12 @@ jobs:
         # run: echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
     - name: 📂 Find build file
       run: echo "BUILD_FILE=$(find outputs -type f \( -name "*.apk" -o -name "*.aab" -o -name "*.ipa" \) -print -quit)" >> $GITHUB_ENV
-
+  
     - name: 📲 Upload build to Firebase App Distribution
-      uses: nickwph/firebase-app-distribution-action@v1.2.1
+      uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
       with:
-        app: ${{secrets.firebase_app_id}}
-        credentials: ${{ secrets.firebase_account_key }}
+        appId: ${{secrets.FIREBASE_DEV_APP_ID}}
+        serviceCredentialsFileContent: ${{ secrets.FIREBASE_DEV_ACCOUNT_KEY }}
         groups: deveji
         file: ${{ env.BUILD_FILE }}
+        debug: true
