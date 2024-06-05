@@ -114,7 +114,7 @@ jobs:
       - name: 🧪 Run Tests
         id: test
         run: | 
-          output=$(flutter test --test-randomize-ordering-seed random)
+          output=$(flutter test --test-randomize-ordering-seed random | tee /dev/fd/2)
           test_result=$?
           passed_tests=$(echo "$output" | sed -n 's/.*\([0-9]\+\) tests passed.*/\1/p')
           failed_tests=$(echo "$output" | sed -n 's/.*\([0-9]\+\) failed.*/\1/p')
