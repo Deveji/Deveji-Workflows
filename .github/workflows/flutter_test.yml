@@ -34,6 +34,16 @@ on:
     secrets:
       dot_env:
         required: false
+    outputs:
+      format_result: 
+        description: "The result of the format check"
+        value: ${{ jobs.deveji-flutter-test.outputs.format_result }}
+      analyze_result:
+        description: "The result of the analyze check"
+        value: ${{ jobs.deveji-flutter-test.outputs.analyze_result }}
+      test_result:
+        description: "The result of the test check"
+        value: ${{ jobs.deveji-flutter-test.outputs.test_result }}
 
 jobs:
   deveji-flutter-test:
