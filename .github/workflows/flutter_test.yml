@@ -86,7 +86,7 @@ jobs:
         run: | 
           # flutter test --test-randomize-ordering-seed random
           echo "test test"
-          check=$?
+          check="sdfgsdfg"
           echo "CHECK_TEST=$check" >> $GITHUB_ENV
           exit $check
         continue-on-error: true
