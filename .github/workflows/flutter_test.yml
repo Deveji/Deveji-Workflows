@@ -37,9 +37,9 @@ on:
 
 jobs:
   deveji-flutter-test:
-    defaults:
-      run:
-        working-directory: ${{inputs.working_directory}}
+    # defaults:
+      # run:
+        # working-directory: ${{inputs.working_directory}}
 
     runs-on: ${{inputs.runs_on}}
 
