@@ -44,6 +44,12 @@ on:
       test_result:
         description: "The result of the test check"
         value: ${{ jobs.deveji-flutter-test.outputs.test_result }}
+      passed_tests:
+        description: "The number of passed tests"
+        value: ${{ jobs.deveji-flutter-test.outputs.passed_tests }}
+      failed_tests:
+        description: "The number of failed tests"
+        value: ${{ jobs.deveji-flutter-test.outputs.failed_tests }}
 
 jobs:
   deveji-flutter-test:
@@ -54,6 +60,9 @@ jobs:
       format_result: ${{ steps.format.outputs.CHECK_FORMAT }}
       analyze_result: ${{ steps.analyze.outputs.CHECK_ANALYZE }}
       test_result: ${{ steps.test.outputs.CHECK_TEST }}
+      passed_tests: ${{ steps.test.outputs.PASSED_TESTS }}
+      failed_tests: ${{ steps.test.outputs.FAILED_TESTS }}
+
       
 
     runs-on: ${{inputs.runs_on}}
@@ -105,12 +114,26 @@ jobs:
       - name: 🧪 Run Tests
         id: test
         run: | 
-          flutter test --test-randomize-ordering-seed random
-          echo "test test"
-          check=$?
-          echo "CHECK_TEST=$check" >> $GITHUB_ENV
-          echo "CHECK_TEST=$check" >> $GITHUB_OUTPUT
-          exit $check
+          output=$(flutter test --test-randomize-ordering-seed random)
+          test_result=$?
+          passed_tests=$(echo "$output" | sed -n 's/.*\([0-9]\+\) tests passed.*/\1/p')
+          failed_tests=$(echo "$output" | sed -n 's/.*\([0-9]\+\) failed.*/\1/p')
+          
+          # If "All tests passed!" is found in the output, set failed_tests to 0
+          if $(echo "$output" | grep -q "All tests passed!"); then
+            failed_tests=0
+            passed_tests=all
+          fi
+          
+          echo "Tests passed: $passed_tests"
+          echo "Tests failed: $failed_tests"
+          echo "Test result: $test_result"
+
+          echo "CHECK_TEST=$test_result" >> $GITHUB_ENV
+          echo "CHECK_TEST=$test_result" >> $GITHUB_OUTPUT
+          echo "PASSED_TESTS=$passed_tests" >> $GITHUB_OUTPUT
+          echo "FAILED_TESTS=$failed_tests" >> $GITHUB_OUTPUT
+          exit $test_result
         continue-on-error: true
       
       - name: 🚀 Results
