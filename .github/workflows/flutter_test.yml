@@ -61,9 +61,9 @@ jobs:
       - name: 📦 Install Dependencies
         run: |
           flutter clean
+          flutter pub get
           dart pub global activate build_runner
           dart run build_runner build -d
-          flutter pub get
 
       - name: ✨ Check Formatting
         run: |
