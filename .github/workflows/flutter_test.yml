@@ -98,14 +98,20 @@ jobs:
           echo "### 🧪 Test: $CHECK_TEST"
           if [[ "$CHECK_FORMAT" != "0" ]]; then
             echo "### ❌ Formatting check failed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ✅ Formatting check passed!" >> $GITHUB_STEP_SUMMARY
           fi
           if [[ "$CHECK_ANALYZE" != "0" ]]; then
             echo "### ❌ Analyze check failed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ✅ Analyze check passed!" >> $GITHUB_STEP_SUMMARY
           fi
           if [[ "$CHECK_TEST" != "0" ]]; then
             echo "### ❌ Test check failed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ✅ Test check passed!" >> $GITHUB_STEP_SUMMARY
           fi
           if [[ "$CHECK_FORMAT" == "0" ]] && [[ "$CHECK_ANALYZE" == "0" ]] && [[ "$CHECK_TEST" == "0" ]]; then
-            echo "### ✅ All checks passed!" >> $GITHUB_STEP_SUMMARY
+            echo "### 🎉 All checks passed! :rocket:" >> $GITHUB_STEP_SUMMARY
           fi
         continue-on-error: true
