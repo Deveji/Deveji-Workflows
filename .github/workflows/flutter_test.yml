@@ -37,36 +37,36 @@ on:
 
 jobs:
   deveji-flutter-test:
-    # defaults:
-      # run:
-        # working-directory: ${{inputs.working_directory}}
+    defaults:
+      run:
+        working-directory: ${{inputs.working_directory}}
 
     runs-on: ${{inputs.runs_on}}
 
     steps:
-      # - name: 📚 Git Checkout
-      #   uses: actions/checkout@v4.1.6
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4.1.6
 
-      # - name: 🐦 Setup Flutter
-      #   uses: subosito/flutter-action@v2.16.0
-      #   with:
-      #     flutter-version: ${{inputs.flutter_version}}
-      #     channel: ${{inputs.flutter_channel}}
-      #     cache: true
-      #     cache-key: flutter-:os:-:channel:-:version:-:arch:-:hash:-${{ hashFiles('**/pubspec.lock') }}
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2.16.0
+        with:
+          flutter-version: ${{inputs.flutter_version}}
+          channel: ${{inputs.flutter_channel}}
+          cache: true
+          cache-key: flutter-:os:-:channel:-:version:-:arch:-:hash:-${{ hashFiles('**/pubspec.lock') }}
 
-      # - name: 📝 Add .env file
-      #   run: echo "${{ secrets.dot_env }}" > .env
+      - name: 📝 Add .env file
+        run: echo "${{ secrets.dot_env }}" > .env
 
-      # - name: 📦 Install Dependencies
-      #   run: |
-      #     flutter clean
-      #     dart run build_runner build -d
-      #     flutter pub get
+      - name: 📦 Install Dependencies
+        run: |
+          flutter clean
+          dart run build_runner build -d
+          flutter pub get
 
       - name: ✨ Check Formatting
         run: |
-          # dart format --line-length ${{inputs.format_line_length}} --set-exit-if-changed ${{inputs.format_directories}}
+          dart format --line-length ${{inputs.format_line_length}} --set-exit-if-changed ${{inputs.format_directories}}
           echo "test format"
           check=$?
           echo "CHECK_FORMAT=$check" >> $GITHUB_ENV
@@ -75,43 +75,37 @@ jobs:
 
       - name: 🕵️ Analyze
         run: |
-          # flutter analyze ${{inputs.analyze_directories}}
+          flutter analyze ${{inputs.analyze_directories}}
           echo "test analyze"
-          check=1
+          check=$?
           echo "CHECK_ANALYZE=$check" >> $GITHUB_ENV
           exit $check
         continue-on-error: true
 
       - name: 🧪 Run Tests
         run: | 
-          # flutter test --test-randomize-ordering-seed random
+          flutter test --test-randomize-ordering-seed random
           echo "test test"
-          check="sdfgsdfg"
+          check=$?
           echo "CHECK_TEST=$check" >> $GITHUB_ENV
           exit $check
         continue-on-error: true
       
       - name: 🚀 Results
         run: |
-          echo $CHECK_FORMAT
-          echo $CHECK_ANALYZE
-          echo $CHECK_TEST
-          echo
           echo "### 📝 Check Formatting: $CHECK_FORMAT"
           echo "### 🕵️ Analyze: $CHECK_ANALYZE"
           echo "### 🧪 Test: $CHECK_TEST"
-          if [[ $CHECK_FORMAT -ne 0 ]]; then
+          if [[ "$CHECK_FORMAT" != "0" ]]; then
             echo "### ❌ Formatting check failed!" >> $GITHUB_STEP_SUMMARY
           fi
-          if [[ $CHECK_ANALYZE -ne 0 ]]; then
+          if [[ "$CHECK_ANALYZE" != "0" ]]; then
             echo "### ❌ Analyze check failed!" >> $GITHUB_STEP_SUMMARY
           fi
-          if [[ $CHECK_TEST -ne 0 ]]; then
+          if [[ "$CHECK_TEST" != "0" ]]; then
             echo "### ❌ Test check failed!" >> $GITHUB_STEP_SUMMARY
           fi
-          if [[ $CHECK_FORMAT -eq 0 ]] && [[ $CHECK_ANALYZE -eq 0 ]] && [[ $CHECK_TEST -eq 0 ]]; then
+          if [[ "$CHECK_FORMAT" == "0" ]] && [[ "$CHECK_ANALYZE" == "0" ]] && [[ "$CHECK_TEST" == "0" ]]; then
             echo "### ✅ All checks passed!" >> $GITHUB_STEP_SUMMARY
           fi
         continue-on-error: true
-          
-
