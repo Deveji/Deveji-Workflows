@@ -90,16 +90,16 @@ jobs:
       
       - name: 🚀 Results
         run: |
-          if [ $CHECK_FORMAT -ne 0 ]; THEN
+          if [ $CHECK_FORMAT -ne 0 ]; then
             echo "### ❌ Formatting check failed!" >> $GITHUB_STEP_SUMMARY
           fi
-          if [ $CHECK_ANALYZE -ne 0 ]; THEN
+          if [ $CHECK_ANALYZE -ne 0 ]; then
             echo "### ❌ Analyze check failed!" >> $GITHUB_STEP_SUMMARY
           fi
-          if [ $CHECK_TEST -ne 0 ]; THEN
+          if [ $CHECK_TEST -ne 0 ]; then
             echo "### ❌ Test check failed!" >> $GITHUB_STEP_SUMMARY
           fi
-          if [ $CHECK_FORMAT -eq 0 ] && [ $CHECK_ANALYZE -eq 0 ] && [ $CHECK_TEST -eq 0 ]; THEN
+          if [ $CHECK_FORMAT -eq 0 ] && [ $CHECK_ANALYZE -eq 0 ] && [ $CHECK_TEST -eq 0 ]; then
             echo "### ✅ All checks passed!" >> $GITHUB_STEP_SUMMARY
           fi
         continue-on-error: true
