@@ -116,3 +116,6 @@ jobs:
             echo "### 🎉 All checks passed! :rocket:" >> $GITHUB_STEP_SUMMARY
           fi
         continue-on-error: true
+
+      - name: 🏁 Exit
+        run: exit $CHECK_TEST
