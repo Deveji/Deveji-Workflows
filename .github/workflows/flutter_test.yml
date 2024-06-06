@@ -112,10 +112,21 @@ jobs:
         id: test
         run: | 
           output=$(flutter test --test-randomize-ordering-seed random --reporter github| tee /dev/fd/2)
+          # Strip ::error:: from the output
+          temp_output=$(echo "$output" | sed 's/::error:://g')
+          
           passed_tests=0
           failed_tests=0
-          passed_tests=$(echo "$output" | grep -Eo '[0-9]+ tests passed' | grep -Eo '[0-9]+')
-          failed_tests=$(echo "$output" | grep -Eo '[0-9]+ failed' | grep -Eo '[0-9]+')
+          
+          if echo "$temp_output" | grep -q 'tests passed,'
+          then
+            # If some tests failed
+            passed_tests=$(echo "$temp_output" | awk -F' ' '/tests passed,/ {print $1}')
+            failed_tests=$(echo "$temp_output" | awk -F' ' '/tests passed,/ {print $4}')
+          else
+            # If all tests passed
+            passed_tests=$(echo "$temp_output" | awk -F' ' '/tests passed./ {print $2}')
+          fi
           
           echo "Tests passed: $passed_tests"
           echo "Tests failed: $failed_tests"
