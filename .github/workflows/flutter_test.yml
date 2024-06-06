@@ -41,9 +41,7 @@ on:
       analyze_result:
         description: "The result of the analyze check"
         value: ${{ jobs.deveji-flutter-test.outputs.analyze_result }}
-      test_result:
-        description: "The result of the test check"
-        value: ${{ jobs.deveji-flutter-test.outputs.test_result }}
+
       passed_tests:
         description: "The number of passed tests"
         value: ${{ jobs.deveji-flutter-test.outputs.passed_tests }}
@@ -59,7 +57,7 @@ jobs:
     outputs:
       format_result: ${{ steps.format.outputs.CHECK_FORMAT }}
       analyze_result: ${{ steps.analyze.outputs.CHECK_ANALYZE }}
-      test_result: ${{ steps.test.outputs.CHECK_TEST }}
+
       passed_tests: ${{ steps.test.outputs.PASSED_TESTS }}
       failed_tests: ${{ steps.test.outputs.FAILED_TESTS }}
 
@@ -114,33 +112,26 @@ jobs:
       - name: 🧪 Run Tests
         id: test
         run: | 
-          output=$(flutter test --test-randomize-ordering-seed random | tee /dev/fd/2)
-          test_result=$?
-          passed_tests=$(echo "$output" | sed -n 's/.*\([0-9]\+\) tests passed.*/\1/p')
-          failed_tests=$(echo "$output" | sed -n 's/.*\([0-9]\+\) failed.*/\1/p')
-          
-          # If "All tests passed!" is found in the output, set failed_tests to 0
-          if $(echo "$output" | grep -q "All tests passed!"); then
-            failed_tests=0
-            passed_tests=all
-          fi
+          output=$(flutter test --test-randomize-ordering-seed random --reporter github| tee /dev/fd/2)
+          passed_tests=0
+          failed_tests=0
+          passed_tests=$(echo "$output" | grep -Eo '[0-9]+ tests passed' | grep -Eo '[0-9]+')
+          failed_tests=$(echo "$output" | grep -Eo '[0-9]+ failed' | grep -Eo '[0-9]+')
           
           echo "Tests passed: $passed_tests"
           echo "Tests failed: $failed_tests"
-          echo "Test result: $test_result"
+          echo "Test result: $failed_tests"
 
-          echo "CHECK_TEST=$test_result" >> $GITHUB_ENV
-          echo "CHECK_TEST=$test_result" >> $GITHUB_OUTPUT
           echo "PASSED_TESTS=$passed_tests" >> $GITHUB_OUTPUT
           echo "FAILED_TESTS=$failed_tests" >> $GITHUB_OUTPUT
-          exit $test_result
+          exit $failed_tests
         continue-on-error: true
       
       - name: 🚀 Results
         run: |
           echo "### 📝 Check Formatting: $CHECK_FORMAT"
           echo "### 🕵️ Analyze: $CHECK_ANALYZE"
-          echo "### 🧪 Test: $CHECK_TEST"
+          echo "### 🧪 Test: $FAILED_TESTS"
           if [[ "$CHECK_FORMAT" != "0" ]]; then
             echo "### ❌ Formatting check failed!" >> $GITHUB_STEP_SUMMARY
           else
@@ -151,12 +142,12 @@ jobs:
           else
             echo "### ✅ Analyze check passed!" >> $GITHUB_STEP_SUMMARY
           fi
-          if [[ "$CHECK_TEST" != "0" ]]; then
+          if [[ "$FAILED_TESTS" != "0" ]]; then
             echo "### ❌ Test check failed!" >> $GITHUB_STEP_SUMMARY
           else
             echo "### ✅ Test check passed!" >> $GITHUB_STEP_SUMMARY
           fi
-          if [[ "$CHECK_FORMAT" == "0" ]] && [[ "$CHECK_ANALYZE" == "0" ]] && [[ "$CHECK_TEST" == "0" ]]; then
+          if [[ "$CHECK_FORMAT" == "0" ]] && [[ "$CHECK_ANALYZE" == "0" ]] && [[ "$FAILED_TESTS" == "0" ]]; then
             echo "### 🎉 All checks passed! :rocket:" >> $GITHUB_STEP_SUMMARY
           fi
         continue-on-error: true
@@ -165,9 +156,12 @@ jobs:
         env:
           OUTPUT_CHECK_FORMAT: ${{ steps.format.outputs.CHECK_FORMAT }}
           OUTPUT_CHECK_ANALYZE: ${{ steps.analyze.outputs.CHECK_ANALYZE }}
-          OUTPUT_CHECK_TEST: ${{ steps.test.outputs.CHECK_TEST }}
+          OUTPUT_PASSED_TESTS: ${{ steps.test.outputs.PASSED_TESTS }}
+          OUTPUT_FAILED_TESTS: ${{ steps.test.outputs.FAILED_TESTS }}
         run: |
-          echo "Test results: $OUTPUT_CHECK_TEST"
           echo "Format results: $OUTPUT_CHECK_FORMAT"
           echo "Analyze results: $OUTPUT_CHECK_ANALYZE"
-          exit $CHECK_TEST
+
+          echo "Passed tests: $OUTPUT_PASSED_TESTS"
+          echo "Failed tests: $OUTPUT_FAILED_TESTS"
+          exit $OUTPUT_FAILED_TESTS
