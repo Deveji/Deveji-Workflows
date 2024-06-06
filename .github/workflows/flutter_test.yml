@@ -57,7 +57,6 @@ jobs:
     outputs:
       format_result: ${{ steps.format.outputs.CHECK_FORMAT }}
       analyze_result: ${{ steps.analyze.outputs.CHECK_ANALYZE }}
-
       passed_tests: ${{ steps.test.outputs.PASSED_TESTS }}
       failed_tests: ${{ steps.test.outputs.FAILED_TESTS }}
 
@@ -124,6 +123,8 @@ jobs:
 
           echo "PASSED_TESTS=$passed_tests" >> $GITHUB_OUTPUT
           echo "FAILED_TESTS=$failed_tests" >> $GITHUB_OUTPUT
+          echo "PASSED_TESTS=$passed_tests" >> $GITHUB_ENV
+          echo "FAILED_TESTS=$failed_tests" >> $GITHUB_ENV
           exit $failed_tests
         continue-on-error: true
       
@@ -156,8 +157,8 @@ jobs:
         env:
           OUTPUT_CHECK_FORMAT: ${{ steps.format.outputs.CHECK_FORMAT }}
           OUTPUT_CHECK_ANALYZE: ${{ steps.analyze.outputs.CHECK_ANALYZE }}
-          OUTPUT_PASSED_TESTS: ${{ steps.test.outputs.PASSED_TESTS }}
-          OUTPUT_FAILED_TESTS: ${{ steps.test.outputs.FAILED_TESTS }}
+          OUTPUT_PASSED_TESTS: ${{ steps.test.outputs.passed_tests }}
+          OUTPUT_FAILED_TESTS: ${{ steps.test.outputs.failed_tests }}
         run: |
           echo "Format results: $OUTPUT_CHECK_FORMAT"
           echo "Analyze results: $OUTPUT_CHECK_ANALYZE"
