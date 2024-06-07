@@ -182,4 +182,6 @@ jobs:
           echo "Failed tests: $OUTPUT_FAILED_TESTS"
           if [[ "${{inputs.continue_on_error}}" == "false" ]]; then
             exit $OUTPUT_FAILED_TESTS
+          else
+            exit 0
           fi
