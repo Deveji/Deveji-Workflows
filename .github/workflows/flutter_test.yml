@@ -31,6 +31,10 @@ on:
         required: false
         type: string
         default: "."
+      continue_on_error:
+        required: false
+        type: boolean
+        default: false
     secrets:
       dot_env:
         required: false
@@ -176,4 +180,6 @@ jobs:
 
           echo "Passed tests: $OUTPUT_PASSED_TESTS"
           echo "Failed tests: $OUTPUT_FAILED_TESTS"
-          exit $OUTPUT_FAILED_TESTS
+          if [[ "${{inputs.continue_on_error}}" == "false" ]]; then
+            exit $OUTPUT_FAILED_TESTS
+          fi
