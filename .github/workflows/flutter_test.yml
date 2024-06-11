@@ -99,8 +99,9 @@ jobs:
       - name: ✨ Check Formatting
         id: format
         run: |
-          dart format --line-length ${{inputs.format_line_length}} --set-exit-if-changed ${{inputs.format_directories}}
           echo "test format"
+          check=0
+          dart format --line-length ${{inputs.format_line_length}} --set-exit-if-changed ${{inputs.format_directories}}
           check=$?
           echo "CHECK_FORMAT=$check" >> $GITHUB_ENV
           echo "CHECK_FORMAT=$check" >> $GITHUB_OUTPUT
@@ -110,8 +111,9 @@ jobs:
       - name: 🕵️ Analyze
         id: analyze
         run: |
-          flutter analyze ${{inputs.analyze_directories}}
           echo "test analyze"
+          check=0
+          flutter analyze ${{inputs.analyze_directories}}
           check=$?
           echo "CHECK_ANALYZE=$check" >> $GITHUB_ENV
           echo "CHECK_ANALYZE=$check" >> $GITHUB_OUTPUT
