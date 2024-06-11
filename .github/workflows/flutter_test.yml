@@ -132,8 +132,7 @@ jobs:
             # If all tests passed
             passed_tests=$(echo "$temp_output" | awk -F' ' '/tests passed./ {print $2}')
           fi
-          total_tests=$(find ./test -name "*_test.dart" | xargs grep -E ' test\(' | wc -l | tr -d ' ')
-          passed_tests_percentage=$(echo "scale=4; $passed_tests / $total_tests * 100" | bc)
+          passed_tests_percentage=$test_passed*100/$($passed_tests+$failed_tests)
 
           
           echo "Tests passed: $passed_tests"
