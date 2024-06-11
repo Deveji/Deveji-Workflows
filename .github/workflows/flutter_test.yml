@@ -132,7 +132,7 @@ jobs:
             # If all tests passed
             passed_tests=$(echo "$temp_output" | awk -F' ' '/tests passed./ {print $2}')
           fi
-          passed_tests_percentage=$test_passed*100/$($passed_tests+$failed_tests)
+          passed_tests_percentage=$(echo "scale=2; $passed_tests*100/($passed_tests+$failed_tests)" | bc)
 
           
           echo "Tests passed: $passed_tests"
