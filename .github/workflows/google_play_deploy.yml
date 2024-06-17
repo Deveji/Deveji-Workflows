@@ -47,4 +47,5 @@ jobs:
         packageName: ${{inputs.package_name}}
         releaseFiles: ${{inputs.file_name}}
         track: ${{inputs.track}}
-        status: completed
+        status: draft
+        changesNotSentForReview: true
