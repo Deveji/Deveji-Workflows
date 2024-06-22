@@ -48,4 +48,3 @@ jobs:
         releaseFiles: ${{inputs.file_name}}
         track: ${{inputs.track}}
         status: draft
-        changesNotSentForReview: true
