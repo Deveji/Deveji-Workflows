@@ -56,7 +56,7 @@ jobs:
           key: outputs
 
       - name: ✨ Create New Release
-        uses: softprops/action-gh-release@v2.0.5
+        uses: softprops/action-gh-release@v2.0.6
         with:
           tag_name: ${{ steps.tag_version.outputs.tagname }}
           token: ${{ secrets.gh_token }}
