@@ -118,7 +118,7 @@ jobs:
         run: "flutter build apk ./lib/main_${{ inputs.flavor }}.dart --flavor ${{ inputs.flavor }} --release --build-number ${{ inputs.build_number }}"
 
       - name: ☁️ Upload apk
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v4.3.6
         with:
           name: apk
           overwrite: true
